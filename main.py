@@ -52,13 +52,13 @@ def get_conversational_chain():
     prompt_template = """
     If the user greets then greet accordingly and
     Answer the question as detailed as possible. If the answer is not in
-    the provided context, just say, "The answer is not available in the context."
+    the provided context, try to give a human like answer inspired from the context.
     
     Context:\n {context}?\n
     Question: \n{question}\n
     Answer:
     """
-    model = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.3, api_key=key)
+    model = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.5, api_key=key)
     prompt = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
     chain = load_qa_chain(model, chain_type="stuff", prompt=prompt)
     return chain
