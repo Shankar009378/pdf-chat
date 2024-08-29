@@ -16,7 +16,8 @@ from pydantic import BaseModel
 app = FastAPI()
 
 origins = [
-    '*'
+    "https://pdf-chat-frontend.vercel.app",
+    "http://localhost:3000",
 ]
 
 app.add_middleware(
