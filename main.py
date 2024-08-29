@@ -50,6 +50,7 @@ def get_vector_store(text_chunks: List[str]):
 
 def get_conversational_chain():
     prompt_template = """
+    If the user greets then greet accordingly and
     Answer the question as detailed as possible. If the answer is not in
     the provided context, just say, "The answer is not available in the context."
     
