@@ -13,13 +13,10 @@ from typing import List
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-
 app = FastAPI()
 
-
 origins = [
-    '*'  # Add your frontend's URL here
-    # Add other origins if needed
+    '*'
 ]
 
 app.add_middleware(
@@ -33,7 +30,6 @@ app.add_middleware(
 key = os.getenv("API_KEY")
 genai.configure(api_key=key)
 
-
 def get_pdf_text(pdf_docs: List[UploadFile]):
     text = ""
     for pdf in pdf_docs:
@@ -42,34 +38,29 @@ def get_pdf_text(pdf_docs: List[UploadFile]):
             text += page.extract_text()
     return text
 
-
 def get_text_chunks(text: str):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=10000, chunk_overlap=1000)
     chunks = text_splitter.split_text(text)
     return chunks
-
 
 def get_vector_store(text_chunks: List[str]):
     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key=key)
     vector_store = FAISS.from_texts(text_chunks, embedding=embeddings)
     vector_store.save_local("faiss_index")
 
-
 def get_conversational_chain():
     prompt_template = """
-    Answer the question as detailed as possible, make sure to provide all the details, if the answer is not in
-    provided context just say, "answer is not available in the context", don't provide the wrong answer\n\n
+    Answer the question as detailed as possible. If the answer is not in
+    the provided context, just say, "The answer is not available in the context."
+    
     Context:\n {context}?\n
     Question: \n{question}\n
-
     Answer:
     """
-
     model = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.3, api_key=key)
     prompt = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
     chain = load_qa_chain(model, chain_type="stuff", prompt=prompt)
     return chain
-
 
 @app.post("/upload-pdfs/")
 async def upload_pdfs(pdf_docs: List[UploadFile] = File(...)):
@@ -81,7 +72,6 @@ async def upload_pdfs(pdf_docs: List[UploadFile] = File(...)):
     get_vector_store(text_chunks)
     
     return {"message": "PDFs processed and vector store created successfully"}
-
 
 class QuestionRequest(BaseModel):
     user_question: str
